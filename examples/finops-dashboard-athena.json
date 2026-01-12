@@ -11,7 +11,7 @@
         "type": "stat",
         "targets": [
           {
-            "rawSql": "SELECT SUM(line_item_blended_cost) as total_cost FROM cur_report WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report)",
+            "rawSql": "SELECT SUM(line_item_blended_cost) as total_cost FROM cur_report_sample WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report_sample)",
             "format": "table"
           }
         ],
@@ -52,7 +52,7 @@
         "type": "stat",
         "targets": [
           {
-            "rawSql": "SELECT COUNT(DISTINCT line_item_resource_id) as active_resources FROM cur_report WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report) AND line_item_resource_id IS NOT NULL",
+            "rawSql": "SELECT COUNT(DISTINCT line_item_resource_id) as active_resources FROM cur_report_sample WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report_sample) AND line_item_resource_id IS NOT NULL",
             "format": "table"
           }
         ],
@@ -84,7 +84,7 @@
         "type": "barchart",
         "targets": [
           {
-            "rawSql": "SELECT line_item_product_code, SUM(line_item_blended_cost) as total_cost FROM cur_report WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report) GROUP BY line_item_product_code ORDER BY total_cost DESC LIMIT 10",
+            "rawSql": "SELECT line_item_product_code, SUM(line_item_blended_cost) as total_cost FROM cur_report_sample WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report_sample) GROUP BY line_item_product_code ORDER BY total_cost DESC LIMIT 10",
             "format": "table"
           }
         ],
@@ -131,7 +131,7 @@
         "type": "piechart",
         "targets": [
           {
-            "rawSql": "SELECT line_item_usage_account_id, SUM(line_item_blended_cost) as total_cost FROM cur_report WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report) GROUP BY line_item_usage_account_id ORDER BY total_cost DESC",
+            "rawSql": "SELECT line_item_usage_account_id, SUM(line_item_blended_cost) as total_cost FROM cur_report_sample WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report_sample) GROUP BY line_item_usage_account_id ORDER BY total_cost DESC",
             "format": "table"
           }
         ],
@@ -164,7 +164,7 @@
         "type": "table",
         "targets": [
           {
-            "rawSql": "SELECT line_item_resource_id, line_item_usage_type, SUM(line_item_blended_cost) as total_cost, SUM(line_item_usage_amount) as usage_amount FROM cur_report WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report) AND line_item_product_code = 'AmazonEC2' AND line_item_resource_id IS NOT NULL GROUP BY line_item_resource_id, line_item_usage_type ORDER BY total_cost DESC LIMIT 20",
+            "rawSql": "SELECT line_item_resource_id, line_item_usage_type, SUM(line_item_blended_cost) as total_cost, SUM(line_item_usage_amount) as usage_amount FROM cur_report_sample WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report_sample) AND line_item_product_code = 'AmazonEC2' AND line_item_resource_id IS NOT NULL GROUP BY line_item_resource_id, line_item_usage_type ORDER BY total_cost DESC LIMIT 20",
             "format": "table"
           }
         ],
@@ -197,7 +197,7 @@
         "type": "table",
         "targets": [
           {
-            "rawSql": "SELECT line_item_resource_id, line_item_usage_type, SUM(line_item_blended_cost) as total_cost, SUM(line_item_usage_amount) as usage_amount FROM cur_report WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report) AND line_item_product_code = 'AmazonRDS' AND line_item_resource_id IS NOT NULL GROUP BY line_item_resource_id, line_item_usage_type ORDER BY total_cost DESC LIMIT 20",
+            "rawSql": "SELECT line_item_resource_id, line_item_usage_type, SUM(line_item_blended_cost) as total_cost, SUM(line_item_usage_amount) as usage_amount FROM cur_report_sample WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report_sample) AND line_item_product_code = 'AmazonRDS' AND line_item_resource_id IS NOT NULL GROUP BY line_item_resource_id, line_item_usage_type ORDER BY total_cost DESC LIMIT 20",
             "format": "table"
           }
         ],
@@ -230,7 +230,7 @@
         "type": "table",
         "targets": [
           {
-            "rawSql": "SELECT line_item_resource_id, SUM(line_item_blended_cost) as total_cost, SUM(line_item_usage_amount) as requests FROM cur_report WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report) AND line_item_product_code = 'AWSLambda' AND line_item_resource_id IS NOT NULL GROUP BY line_item_resource_id ORDER BY total_cost DESC LIMIT 15",
+            "rawSql": "SELECT line_item_resource_id, SUM(line_item_blended_cost) as total_cost, SUM(line_item_usage_amount) as requests FROM cur_report_sample WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report_sample) AND line_item_product_code = 'AWSLambda' AND line_item_resource_id IS NOT NULL GROUP BY line_item_resource_id ORDER BY total_cost DESC LIMIT 15",
             "format": "table"
           }
         ],
@@ -263,7 +263,7 @@
         "type": "table",
         "targets": [
           {
-            "rawSql": "SELECT COUNT(DISTINCT line_item_usage_account_id) as accounts_count, COUNT(DISTINCT line_item_product_code) as services_count, COUNT(DISTINCT line_item_resource_id) as resources_count, AVG(line_item_blended_cost) as avg_cost_per_line FROM cur_report WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report)",
+            "rawSql": "SELECT COUNT(DISTINCT line_item_usage_account_id) as accounts_count, COUNT(DISTINCT line_item_product_code) as services_count, COUNT(DISTINCT line_item_resource_id) as resources_count, AVG(line_item_blended_cost) as avg_cost_per_line FROM cur_report_sample WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report_sample)",
             "format": "table"
           }
         ],
@@ -294,7 +294,7 @@
         "type": "table",
         "targets": [
           {
-            "rawSql": "SELECT line_item_resource_id, line_item_product_code, line_item_usage_type, SUM(line_item_blended_cost) as total_cost, SUM(line_item_usage_amount) as usage_amount FROM cur_report WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report) AND line_item_usage_amount < 1 AND line_item_resource_id IS NOT NULL GROUP BY line_item_resource_id, line_item_product_code, line_item_usage_type ORDER BY total_cost DESC LIMIT 10",
+            "rawSql": "SELECT line_item_resource_id, line_item_product_code, line_item_usage_type, SUM(line_item_blended_cost) as total_cost, SUM(line_item_usage_amount) as usage_amount FROM cur_report_sample WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report_sample) AND line_item_usage_amount < 1 AND line_item_resource_id IS NOT NULL GROUP BY line_item_resource_id, line_item_product_code, line_item_usage_type ORDER BY total_cost DESC LIMIT 10",
             "format": "table"
           }
         ],
