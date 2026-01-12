@@ -1,0 +1,341 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "AWS FinOps CUR Cost & Resource Analysis",
+    "tags": ["finops", "aws", "cur", "cost-analysis", "athena"],
+    "timezone": "UTC",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Current Month Total Cost",
+        "type": "stat",
+        "targets": [
+          {
+            "rawSql": "SELECT SUM(line_item_blended_cost) as total_cost FROM cur_report WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report)",
+            "format": "table"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "yellow",
+                  "value": 1000
+                },
+                {
+                  "color": "red",
+                  "value": 5000
+                }
+              ]
+            },
+            "unit": "currencyUSD",
+            "decimals": 2
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Active Resources Count",
+        "type": "stat",
+        "targets": [
+          {
+            "rawSql": "SELECT COUNT(DISTINCT line_item_resource_id) as active_resources FROM cur_report WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report) AND line_item_resource_id IS NOT NULL",
+            "format": "table"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "short"
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Top Cost Services",
+        "type": "barchart",
+        "targets": [
+          {
+            "rawSql": "SELECT line_item_product_code, SUM(line_item_blended_cost) as total_cost FROM cur_report WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report) GROUP BY line_item_product_code ORDER BY total_cost DESC LIMIT 10",
+            "format": "table"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "currencyUSD",
+            "decimals": 2
+          },
+          "overrides": [
+            {
+              "matcher": {
+                "id": "byName",
+                "options": "line_item_product_code"
+              },
+              "properties": [
+                {
+                  "id": "displayName",
+                  "value": "Service"
+                }
+              ]
+            }
+          ]
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 4
+        }
+      },
+      {
+        "id": 4,
+        "title": "Cost by Account",
+        "type": "piechart",
+        "targets": [
+          {
+            "rawSql": "SELECT line_item_usage_account_id, SUM(line_item_blended_cost) as total_cost FROM cur_report WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report) GROUP BY line_item_usage_account_id ORDER BY total_cost DESC",
+            "format": "table"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "currencyUSD",
+            "decimals": 2
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 12,
+          "y": 4
+        }
+      },
+      {
+        "id": 5,
+        "title": "EC2 Instance Cost Analysis",
+        "type": "table",
+        "targets": [
+          {
+            "rawSql": "SELECT line_item_resource_id, line_item_usage_type, SUM(line_item_blended_cost) as total_cost, SUM(line_item_usage_amount) as usage_amount FROM cur_report WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report) AND line_item_product_code = 'AmazonEC2' AND line_item_resource_id IS NOT NULL GROUP BY line_item_resource_id, line_item_usage_type ORDER BY total_cost DESC LIMIT 20",
+            "format": "table"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "currencyUSD",
+            "decimals": 2
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 12
+        }
+      },
+      {
+        "id": 6,
+        "title": "RDS Database Cost Analysis",
+        "type": "table",
+        "targets": [
+          {
+            "rawSql": "SELECT line_item_resource_id, line_item_usage_type, SUM(line_item_blended_cost) as total_cost, SUM(line_item_usage_amount) as usage_amount FROM cur_report WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report) AND line_item_product_code = 'AmazonRDS' AND line_item_resource_id IS NOT NULL GROUP BY line_item_resource_id, line_item_usage_type ORDER BY total_cost DESC LIMIT 20",
+            "format": "table"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "currencyUSD",
+            "decimals": 2
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 12,
+          "y": 12
+        }
+      },
+      {
+        "id": 7,
+        "title": "Lambda Functions Cost",
+        "type": "table",
+        "targets": [
+          {
+            "rawSql": "SELECT line_item_resource_id, SUM(line_item_blended_cost) as total_cost, SUM(line_item_usage_amount) as requests FROM cur_report WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report) AND line_item_product_code = 'AWSLambda' AND line_item_resource_id IS NOT NULL GROUP BY line_item_resource_id ORDER BY total_cost DESC LIMIT 15",
+            "format": "table"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "currencyUSD",
+            "decimals": 4
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 18,
+          "y": 12
+        }
+      },
+      {
+        "id": 8,
+        "title": "Cost Efficiency Metrics",
+        "type": "table",
+        "targets": [
+          {
+            "rawSql": "SELECT COUNT(DISTINCT line_item_usage_account_id) as accounts_count, COUNT(DISTINCT line_item_product_code) as services_count, COUNT(DISTINCT line_item_resource_id) as resources_count, AVG(line_item_blended_cost) as avg_cost_per_line FROM cur_report WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report)",
+            "format": "table"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 0,
+          "y": 20
+        }
+      },
+      {
+        "id": 9,
+        "title": "Unused/Idle Resources",
+        "type": "table",
+        "targets": [
+          {
+            "rawSql": "SELECT line_item_resource_id, line_item_product_code, line_item_usage_type, SUM(line_item_blended_cost) as total_cost, SUM(line_item_usage_amount) as usage_amount FROM cur_report WHERE billing_period = (SELECT MAX(billing_period) FROM cur_report) AND line_item_usage_amount < 1 AND line_item_resource_id IS NOT NULL GROUP BY line_item_resource_id, line_item_product_code, line_item_usage_type ORDER BY total_cost DESC LIMIT 10",
+            "format": "table"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "orange",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "currencyUSD",
+            "decimals": 2
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 12,
+          "y": 20
+        }
+      }
+    ],
+    "time": {
+      "from": "now-30d",
+      "to": "now"
+    },
+    "timepicker": {},
+    "templating": {
+      "list": []
+    },
+    "annotations": {
+      "list": []
+    },
+    "refresh": "1h",
+    "schemaVersion": 37,
+    "version": 0,
+    "links": []
+  }
+}

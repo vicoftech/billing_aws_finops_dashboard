@@ -1,0 +1,478 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "AWS FinOps Cost & Resource Dashboard",
+    "tags": ["finops", "aws", "cost-optimization", "cloud"],
+    "timezone": "UTC",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Total Monthly Cost",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(aws_billing_estimated_charges{account_id=~\"$account\"})",
+            "legendFormat": "__auto"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 5000
+                }
+              ]
+            },
+            "unit": "currencyUSD"
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "EC2 Instances Count",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(aws_ec2_instances_total{account_id=~\"$account\", state=\"running\"})",
+            "legendFormat": "__auto"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "short"
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "RDS Instances Count",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(aws_rds_db_instances_total{account_id=~\"$account\", state=\"available\"})",
+            "legendFormat": "__auto"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "short"
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 4,
+        "title": "Lambda Functions Count",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "count(aws_lambda_functions_total{account_id=~\"$account\"})",
+            "legendFormat": "__auto"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "short"
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 18,
+          "y": 0
+        }
+      },
+      {
+        "id": 5,
+        "title": "Cost by Service (Top 10)",
+        "type": "barchart",
+        "targets": [
+          {
+            "expr": "topk(10, sum(rate(aws_billing_estimated_charges{account_id=~\"$account\"}[7d])) by (service_name))",
+            "legendFormat": "{{service_name}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "currencyUSD"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 4
+        }
+      },
+      {
+        "id": 6,
+        "title": "Resource Inventory",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "sum(aws_ec2_instances_total{account_id=~\"$account\"}) by (instance_type, state)",
+            "legendFormat": "__auto"
+          },
+          {
+            "expr": "sum(aws_rds_db_instances_total{account_id=~\"$account\"}) by (db_instance_class, engine)",
+            "legendFormat": "__auto"
+          },
+          {
+            "expr": "sum(aws_lambda_functions_total{account_id=~\"$account\"}) by (runtime)",
+            "legendFormat": "__auto"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 4
+        }
+      },
+      {
+        "id": 7,
+        "title": "Cost Trend (7 days)",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(aws_billing_estimated_charges{account_id=~\"$account\"}[1h]))",
+            "legendFormat": "Total Cost"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "currencyUSD"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 12
+        }
+      },
+      {
+        "id": 8,
+        "title": "Cost Efficiency Score",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "(1 - (sum(rate(aws_billing_estimated_charges{account_id=~\"$account\", service_name=\"EC2-Instance\"}[7d])) / sum(rate(aws_billing_estimated_charges{account_id=~\"$account\"}[7d])))) * 100",
+            "legendFormat": "__auto"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 70
+                },
+                {
+                  "color": "green",
+                  "value": 85
+                }
+              ]
+            },
+            "unit": "percent"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 12,
+          "y": 12
+        }
+      },
+      {
+        "id": 9,
+        "title": "Resource Utilization",
+        "type": "bargauge",
+        "targets": [
+          {
+            "expr": "avg(aws_ec2_cpuutilization_average{account_id=~\"$account\"}) by (instance_id)",
+            "legendFormat": "{{instance_id}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": 0
+                },
+                {
+                  "color": "yellow",
+                  "value": 30
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "percent"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 18,
+          "y": 12
+        }
+      },
+      {
+        "id": 10,
+        "title": "FinOps KPIs",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "sum(aws_billing_estimated_charges{account_id=~\"$account\"})",
+            "legendFormat": "Total Cost"
+          },
+          {
+            "expr": "count(aws_ec2_instances_total{account_id=~\"$account\", state=\"running\"})",
+            "legendFormat": "Active EC2 Instances"
+          },
+          {
+            "expr": "count(aws_rds_db_instances_total{account_id=~\"$account\", state=\"available\"})",
+            "legendFormat": "Active RDS Instances"
+          },
+          {
+            "expr": "avg(aws_ec2_cpuutilization_average{account_id=~\"$account\"})",
+            "legendFormat": "Avg CPU Utilization"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 0,
+          "y": 20
+        }
+      },
+      {
+        "id": 11,
+        "title": "Cost by Account",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum(aws_billing_estimated_charges{account_id=~\"$account\"}) by (account_id)",
+            "legendFormat": "{{account_id}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                }
+              ]
+            },
+            "unit": "currencyUSD"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 12,
+          "y": 20
+        }
+      },
+      {
+        "id": 12,
+        "title": "Idle Resources Alert",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "aws_ec2_cpuutilization_average{account_id=~\"$account\"} < 5",
+            "legendFormat": "{{instance_id}} - Low CPU"
+          },
+          {
+            "expr": "aws_rds_database_connections_average{account_id=~\"$account\"} < 2",
+            "legendFormat": "{{db_instance_identifier}} - Low Connections"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "orange",
+                  "value": null
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 18,
+          "y": 20
+        }
+      }
+    ],
+    "time": {
+      "from": "now-7d",
+      "to": "now"
+    },
+    "timepicker": {},
+    "templating": {
+      "list": [
+        {
+          "current": {
+            "selected": false,
+            "text": "All",
+            "value": "$__all"
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "definition": "label_values(account_id)",
+          "hide": 0,
+          "includeAll": true,
+          "label": "AWS Account",
+          "multi": true,
+          "name": "account",
+          "options": [],
+          "query": {
+            "query": "label_values(account_id)",
+            "refId": "Prometheus-account-Variable-Query"
+          },
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "type": "query"
+        }
+      ]
+    },
+    "annotations": {
+      "list": []
+    },
+    "refresh": "5m",
+    "schemaVersion": 37,
+    "version": 0,
+    "links": []
+  }
+}
